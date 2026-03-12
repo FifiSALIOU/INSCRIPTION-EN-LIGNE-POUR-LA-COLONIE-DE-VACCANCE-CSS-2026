@@ -1,0 +1,29 @@
+# Environnement Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Fichiers de configuration sensibles
+backend/.env
+
+# Logs / fichiers temporaires
+*.log
+*.tmp
+
+# VSCode / Cursor / IDE
+.vscode/
+.idea/
+.cursor/
+
+# Dossiers de build Java / Maven (projet demo)
+demo/**/target/
+demo/**/.mvn/
+demo/**/logs/
+
+# Systèmes d'exploitation
+Thumbs.db
+Desktop.ini
+.DS_Store
+
