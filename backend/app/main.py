@@ -1,4 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+
+from .database import get_db
+from .models import User
 
 
 app = FastAPI(
@@ -16,4 +20,13 @@ def read_root():
 @app.get("/health", tags=["général"])
 def health_check():
     return {"status": "ok"}
+
+
+@app.get("/users/count", tags=["users"])
+def count_users(db: Session = Depends(get_db)):
+    """
+    Endpoint de test simple pour vérifier la connexion à la base de données.
+    Retourne le nombre d'utilisateurs enregistrés dans la table users.
+    """
+    return {"count": db.query(User).count()}
 
