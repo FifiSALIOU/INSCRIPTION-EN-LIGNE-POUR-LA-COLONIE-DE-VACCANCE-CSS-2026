@@ -8,7 +8,8 @@ from passlib.context import CryptContext
 from .models import UserRole
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# On utilise pbkdf2_sha256 (évite les problèmes de version avec bcrypt)
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
@@ -39,4 +40,5 @@ def create_access_token(
 def decode_token(token: str) -> dict:
     """Décode un JWT et retourne son payload."""
     return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
 
