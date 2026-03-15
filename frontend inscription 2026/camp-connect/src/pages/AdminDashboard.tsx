@@ -38,7 +38,7 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-6">
       <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-        <h1 className="text-2xl lg:text-3xl font-display font-bold">Espace Administrateur</h1>
+        <h1 className="text-2xl lg:text-3xl font-display font-bold">Espace Gestionnaire</h1>
         <p className="text-muted-foreground mt-1">Gérez la validation des inscriptions et les listes.</p>
       </motion.div>
 
