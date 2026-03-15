@@ -41,15 +41,15 @@ const ListeInscriptions = () => {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Réf.</TableHead>
-                  <TableHead>Parent</TableHead>
-                  <TableHead>Enfant</TableHead>
-                  <TableHead>Naissance</TableHead>
-                  <TableHead>Lien</TableHead>
-                  <TableHead>Liste</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                <TableRow className="bg-primary text-primary-foreground hover:bg-primary">
+                  <TableHead className="text-primary-foreground font-bold text-xs uppercase tracking-wider">Réf.</TableHead>
+                  <TableHead className="text-primary-foreground font-bold text-xs uppercase tracking-wider">Parent</TableHead>
+                  <TableHead className="text-primary-foreground font-bold text-xs uppercase tracking-wider">Enfant</TableHead>
+                  <TableHead className="text-primary-foreground font-bold text-xs uppercase tracking-wider">Naissance</TableHead>
+                  <TableHead className="text-primary-foreground font-bold text-xs uppercase tracking-wider">Lien</TableHead>
+                  <TableHead className="text-primary-foreground font-bold text-xs uppercase tracking-wider">Liste</TableHead>
+                  <TableHead className="text-primary-foreground font-bold text-xs uppercase tracking-wider">Statut</TableHead>
+                  <TableHead className="text-primary-foreground font-bold text-xs uppercase tracking-wider text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
