@@ -213,12 +213,12 @@ const InscrireEnfant = () => {
                   </Badge>
                 )}
                 {hasMain && childRelation !== "autre" && (
-                  <Badge className="ml-2 bg-warning/10 text-warning border-warning/20 text-sm">
+                  <Badge className="ml-2 bg-warning/10 text-warning border-warning/20 hover:bg-warning/10 hover:text-warning hover:border-warning/20 text-sm">
                     Liste d'attente N°1 (Suppléant)
                   </Badge>
                 )}
                 {childRelation === "autre" && (
-                  <Badge className="ml-2 bg-[#FCEAEB] text-[#E0353F] border border-[#F8C3C5] text-sm">
+                  <Badge className="ml-2 bg-[#FCEAEB] text-[#E0353F] border border-[#F8C3C5] hover:bg-[#FCEAEB] hover:text-[#E0353F] hover:border-[#F8C3C5] text-sm">
                     Liste d'attente N° 2
                   </Badge>
                 )}

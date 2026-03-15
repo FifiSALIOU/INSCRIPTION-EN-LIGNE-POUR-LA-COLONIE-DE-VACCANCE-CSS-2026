@@ -49,7 +49,7 @@ const MesEnfants = () => {
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       {ins.isTitulaire && (
-                        <Badge className="bg-secondary/10 text-secondary border-secondary/20 text-xs">
+                        <Badge className="bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary/10 hover:text-secondary hover:border-secondary/20 text-xs">
                           Enfant titulaire
                         </Badge>
                       )}

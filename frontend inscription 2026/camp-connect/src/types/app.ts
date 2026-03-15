@@ -64,7 +64,7 @@ export const RELATION_LABELS: Record<ParentRelation, string> = {
 };
 
 export const STATUS_BADGE_CLASS: Record<InscriptionStatus, string> = {
-  en_attente: "bg-warning/10 text-warning border-warning/20",
-  validee: "bg-success/10 text-success border-success/20",
-  refusee: "bg-destructive/10 text-destructive border-destructive/20",
+  en_attente: "bg-warning/10 text-warning border-warning/20 hover:bg-warning/10 hover:text-warning hover:border-warning/20",
+  validee: "bg-success/10 text-success border-success/20 hover:bg-success/10 hover:text-success hover:border-success/20",
+  refusee: "bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20",
 };
