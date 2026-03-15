@@ -218,7 +218,7 @@ const InscrireEnfant = () => {
                   </Badge>
                 )}
                 {childRelation === "autre" && (
-                  <Badge className="ml-2 bg-muted text-muted-foreground text-sm">
+                  <Badge className="ml-2 bg-[#FCEAEB] text-[#E0353F] border border-[#F8C3C5] text-sm">
                     Liste d'attente N° 2
                   </Badge>
                 )}

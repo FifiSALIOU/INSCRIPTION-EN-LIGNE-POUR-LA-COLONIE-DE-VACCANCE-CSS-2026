@@ -99,19 +99,6 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </motion.div>
-
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}>
-        <Card className="gradient-accent border-0 text-accent-foreground">
-          <CardContent className="p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="flex-1">
-              <h3 className="font-bold text-lg">📅 Dates de la colonie 2026</h3>
-              <p className="text-sm opacity-90 mt-1">
-                Du 15 Juillet au 30 Juillet 2026 — Inscriptions ouvertes jusqu'au 30 Juin 2026
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
     </div>
   );
 };
