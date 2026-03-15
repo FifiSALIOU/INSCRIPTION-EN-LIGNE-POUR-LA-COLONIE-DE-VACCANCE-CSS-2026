@@ -114,7 +114,12 @@ const AdminDashboard = () => {
                           <TableCell className="text-sm">{item.childPrenom}</TableCell>
                           <TableCell className="text-sm">{item.childNom}</TableCell>
                           <TableCell className="text-sm">{new Date(item.childBirthDate).toLocaleDateString("fr-FR")}</TableCell>
-                          <TableCell className="text-sm">{item.isTitulaire ? "✓ Oui" : "Non"}</TableCell>
+                          <TableCell className="text-sm">
+                            <span className="inline-flex items-center gap-1.5">
+                              <span className="w-4 shrink-0 text-center">{item.isTitulaire ? "✓" : ""}</span>
+                              <span>{item.isTitulaire ? "Oui" : "Non"}</span>
+                            </span>
+                          </TableCell>
                           <TableCell className="text-sm">{RELATION_LABELS[item.childRelation]}</TableCell>
                           <TableCell>
                             <Badge className={`text-xs ${STATUS_BADGE_CLASS[item.status]}`}>{STATUS_LABELS[item.status]}</Badge>
