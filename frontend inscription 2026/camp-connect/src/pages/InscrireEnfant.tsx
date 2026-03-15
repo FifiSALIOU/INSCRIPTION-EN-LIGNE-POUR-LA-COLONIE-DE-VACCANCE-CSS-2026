@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Save, Baby, User, CheckCircle2, PlusCircle, Crown, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Save, Baby, User, CheckCircle2, PlusCircle, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -153,8 +153,8 @@ const InscrireEnfant = () => {
               <CardTitle className="font-display text-lg flex items-center gap-2">
                 <Baby className="w-5 h-5 text-secondary" /> Informations de l'enfant
                 {isTitulaire && (
-                  <Badge className="ml-2 bg-secondary/10 text-secondary border-secondary/20">
-                    <Crown className="w-3 h-3 mr-1" /> Enfant titulaire
+                  <Badge className="ml-2 bg-secondary/10 text-secondary border-secondary/20 text-sm">
+                    Enfant titulaire
                   </Badge>
                 )}
                 {hasMain && childRelation !== "autre" && (
