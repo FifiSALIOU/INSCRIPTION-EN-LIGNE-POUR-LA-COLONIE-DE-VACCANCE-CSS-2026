@@ -75,16 +75,22 @@ const Utilisateurs = () => {
     }
 
     if (editingUser) {
-      updateUser(editingUser, {
-        matricule: formData.matricule,
-        prenom: formData.prenom,
-        nom: formData.nom,
-        email: formData.email,
-        service: formData.service,
-        role: formData.role,
-        ...(formData.password ? { password: formData.password } : {}),
-      });
-      toast({ title: "Utilisateur modifié", description: `${formData.prenom} ${formData.nom} a été mis à jour.` });
+      try {
+        await updateUser(editingUser, {
+          matricule: formData.matricule,
+          prenom: formData.prenom,
+          nom: formData.nom,
+          email: formData.email,
+          service: formData.service,
+          role: formData.role,
+          ...(formData.password ? { password: formData.password } : {}),
+        });
+        toast({ title: "Utilisateur modifié", description: `${formData.prenom} ${formData.nom} a été mis à jour.` });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Erreur lors de la mise à jour de l'utilisateur.";
+        toast({ title: "Erreur", description: message, variant: "destructive" });
+        return;
+      }
     } else {
       if (!formData.password) {
         toast({ title: "Erreur", description: "Le mot de passe est requis pour un nouvel utilisateur.", variant: "destructive" });
@@ -110,12 +116,17 @@ const Utilisateurs = () => {
     resetForm();
   };
 
-  const handleDelete = (userId: string) => {
+  const handleDelete = async (userId: string) => {
     const user = users.find((u) => u.id === userId);
     if (!user) return;
     if (!confirm(`Supprimer l'utilisateur ${user.prenom} ${user.nom} ?`)) return;
-    deleteUser(userId);
-    toast({ title: "Utilisateur supprimé", description: `${user.prenom} ${user.nom} a été supprimé.` });
+    try {
+      await deleteUser(userId);
+      toast({ title: "Utilisateur supprimé", description: `${user.prenom} ${user.nom} a été supprimé.` });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erreur lors de la suppression de l'utilisateur.";
+      toast({ title: "Erreur", description: message, variant: "destructive" });
+    }
   };
 
   const handleToggleActive = async (userId: string) => {

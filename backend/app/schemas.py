@@ -46,6 +46,22 @@ class UserStatusUpdate(BaseModel):
     is_active: bool
 
 
+class AdminUpdateUser(BaseModel):
+    """
+    Schéma pour mettre à jour les informations d'un utilisateur
+    (utilisé par l'ADMIN / SUPER ADMIN).
+    Tous les champs sont optionnels.
+    """
+
+    matricule: Optional[str] = Field(None, max_length=20)
+    prenom: Optional[str] = Field(None, max_length=100)
+    nom: Optional[str] = Field(None, max_length=100)
+    email: Optional[EmailStr] = None
+    service: Optional[str] = Field(None, max_length=100)
+    role: Optional[UserRole] = None
+    password: Optional[str] = Field(None, min_length=6, max_length=128)
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"

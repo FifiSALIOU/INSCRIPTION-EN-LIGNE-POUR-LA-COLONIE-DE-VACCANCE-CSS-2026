@@ -14,6 +14,7 @@ from .schemas import (
     UserRead,
     AdminCreateUser,
     UserStatusUpdate,
+    AdminUpdateUser,
     Token,
     DemandeCreate,
     DemandeRead,
@@ -265,7 +266,7 @@ def admin_create_user(
     return db_user
 
 
-@app.patch("/admin/users/{user_id}", response_model=UserRead, tags=["admin"])
+@app.patch("/admin/users/{user_id}/status", response_model=UserRead, tags=["admin"])
 def admin_update_user_status(
     user_id: int,
     payload: UserStatusUpdate,
@@ -284,6 +285,88 @@ def admin_update_user_status(
     db.commit()
     db.refresh(user)
     return user
+
+
+@app.patch("/admin/users/{user_id}", response_model=UserRead, tags=["admin"])
+def admin_update_user(
+    user_id: int,
+    payload: AdminUpdateUser,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    """
+    Met à jour les informations d'un utilisateur (matricule, nom, email, service, rôle, mot de passe).
+    Accès réservé à l'ADMIN / SUPER ADMIN.
+    """
+    user = db.query(User).get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable.")
+
+    if payload.matricule:
+        matricule_norm = payload.matricule.strip().upper()
+        # Vérifier unicité matricule (autre utilisateur)
+        existing = (
+            db.query(User)
+            .filter(func.upper(User.matricule) == matricule_norm, User.id != user_id)
+            .first()
+        )
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Un autre utilisateur possède déjà ce matricule.",
+            )
+        user.matricule = matricule_norm
+
+    if payload.email is not None:
+        if payload.email == "":
+            user.email = None
+        else:
+            existing_email = (
+                db.query(User)
+                .filter(User.email == payload.email, User.id != user_id)
+                .first()
+            )
+            if existing_email:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Un autre utilisateur possède déjà cet email.",
+                )
+            user.email = payload.email
+
+    if payload.prenom is not None:
+        user.prenom = payload.prenom
+    if payload.nom is not None:
+        user.nom = payload.nom
+    if payload.service is not None:
+        user.service = payload.service
+    if payload.role is not None:
+        user.role = payload.role
+    if payload.password:
+        user.password_hash = hash_password(payload.password)
+
+    user.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@app.delete("/admin/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["admin"])
+def admin_delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    """
+    Supprime un utilisateur et ses données associées si les contraintes de la base le permettent.
+    Accès réservé à l'ADMIN / SUPER ADMIN.
+    """
+    user = db.query(User).get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable.")
+
+    db.delete(user)
+    db.commit()
+    return
 
 
 # ---------- Demandes ----------

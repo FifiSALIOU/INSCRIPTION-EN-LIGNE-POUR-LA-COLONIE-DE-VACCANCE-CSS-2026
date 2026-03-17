@@ -250,13 +250,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { ok: true, message: `Utilisateur ${input.prenom} ${input.nom} créé avec succès.` };
   }, [refetchUsers]);
 
-  const updateUser = useCallback((id: string, data: Partial<Omit<AppUser, "id">>) => {
-    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...data } : u)));
-  }, []);
+  const updateUser = useCallback(
+    async (id: string, data: Partial<Omit<AppUser, "id">>) => {
+      const body: Record<string, unknown> = {};
+      if (data.matricule !== undefined) body.matricule = normalizeMatricule(data.matricule);
+      if (data.prenom !== undefined) body.prenom = data.prenom.trim();
+      if (data.nom !== undefined) body.nom = data.nom.trim();
+      if (data.email !== undefined) body.email = data.email.trim() || null;
+      if (data.service !== undefined) body.service = data.service.trim();
+      if (data.role !== undefined) {
+        const roleMap: Record<UserRole, string> = { parent: "parent", admin: "gestionnaire", super_admin: "admin" };
+        body.role = roleMap[data.role];
+      }
+      if (data.password) body.password = data.password;
 
-  const deleteUser = useCallback((id: string) => {
-    setUsers((prev) => prev.filter((u) => u.id !== id));
-  }, []);
+      const { error } = await apiRequest(`/admin/users/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      });
+      if (error) throw new Error(error);
+      await refetchUsers();
+    },
+    [refetchUsers],
+  );
+
+  const deleteUser = useCallback(
+    async (id: string) => {
+      const { error } = await apiRequest(`/admin/users/${id}`, {
+        method: "DELETE",
+      });
+      if (error) throw new Error(error);
+      await refetchUsers();
+    },
+    [refetchUsers],
+  );
 
   const toggleUserActive = useCallback(async (id: string) => {
     const user = users.find((u) => u.id === id);
