@@ -104,7 +104,7 @@ interface AuthContextValue {
   users: AppUser[];
   currentUser: AppUser | null;
   isAuthenticated: boolean;
-  login: (matricule: string, password: string) => Promise<{ ok: boolean; message: string; role?: UserRole }>;
+  login: (identifiant: string, password?: string, mode?: "parent" | "admin") => Promise<{ ok: boolean; message: string; role?: UserRole }>;
   logout: () => void;
   registerParent: (input: RegisterParentInput) => Promise<{ ok: boolean; message: string }>;
   createUser: (input: CreateUserInput) => Promise<{ ok: boolean; message: string }>;
@@ -163,32 +163,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentUser?.id, currentUser?.role]);
 
-  const login = useCallback(async (matricule: string, password: string) => {
-    const form = new FormData();
-    form.append("username", loginIdentifiant(matricule));
-    form.append("password", password);
-    const { data: tokenData, error } = await apiRequest<{ access_token: string }>("/auth/login", {
-      method: "POST",
-      body: form,
-    });
-    if (error || !tokenData?.access_token) {
-      return { ok: false, message: error ?? "Identifiants incorrects." };
-    }
-    setToken(tokenData.access_token);
-    const { data: meData, error: meError } = await apiRequest<Parameters<typeof userReadToAppUser>[0]>("/me", { method: "GET" });
-    if (meError || !meData) {
-      removeToken();
-      return { ok: false, message: "Erreur lors de la récupération du profil." };
-    }
-    const appUser = userReadToAppUser(meData);
-    if (!appUser.isActive) {
-      removeToken();
-      return { ok: false, message: "Ce compte est désactivé. Contactez l'administrateur." };
-    }
-    setCurrentUser(appUser);
-    setSessionUserId(appUser.id);
-    return { ok: true, message: `Connexion réussie (${ROLE_LABELS[appUser.role]}).`, role: appUser.role };
-  }, []);
+  const login = useCallback(
+    async (identifiant: string, password?: string, mode: "parent" | "admin" = "admin") => {
+      let tokenData: { access_token: string } | null = null;
+      let error: string | null = null;
+
+      if (mode === "parent") {
+        const body = {
+          matricule: loginIdentifiant(identifiant),
+        };
+        const response = await apiRequest<{ access_token: string }>("/auth/login-parent", {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
+        tokenData = response.data ?? null;
+        error = response.error ?? null;
+      } else {
+        const form = new FormData();
+        form.append("username", loginIdentifiant(identifiant));
+        form.append("password", password ?? "");
+        const response = await apiRequest<{ access_token: string }>("/auth/login", {
+          method: "POST",
+          body: form,
+        });
+        tokenData = response.data ?? null;
+        error = response.error ?? null;
+      }
+
+      if (error || !tokenData?.access_token) {
+        return { ok: false, message: error ?? "Identifiants incorrects." };
+      }
+
+      setToken(tokenData.access_token);
+      const { data: meData, error: meError } = await apiRequest<Parameters<typeof userReadToAppUser>[0]>("/me", { method: "GET" });
+      if (meError || !meData) {
+        removeToken();
+        return { ok: false, message: "Erreur lors de la récupération du profil." };
+      }
+      const appUser = userReadToAppUser(meData);
+      if (!appUser.isActive) {
+        removeToken();
+        return { ok: false, message: "Ce compte est désactivé. Contactez l'administrateur." };
+      }
+      setCurrentUser(appUser);
+      setSessionUserId(appUser.id);
+      return { ok: true, message: `Connexion réussie (${ROLE_LABELS[appUser.role]}).`, role: appUser.role };
+    },
+    [],
+  );
 
   const logout = useCallback(() => {
     removeToken();

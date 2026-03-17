@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
+from pydantic import BaseModel
 
 from .database import get_db
 from .models import User, DemandeInscription, Enfant, DemandeStatut, UserRole, LienParenteEnum
@@ -88,6 +89,50 @@ def get_user_by_matricule(
     return user
 
 
+class ParentLoginRequest(BaseModel):
+    matricule: str
+
+
+@app.post("/auth/login-parent", response_model=Token, tags=["auth"])
+def login_parent(
+    payload: ParentLoginRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Authentification PARENT par matricule uniquement.
+    - Vérifie que le matricule existe.
+    - Vérifie que l'utilisateur est un parent actif.
+    - Retourne un token JWT sans demander de mot de passe.
+    """
+    matricule_norm = payload.matricule.strip().upper()
+    if not matricule_norm:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Le matricule est requis.",
+        )
+
+    user = (
+        db.query(User)
+        .filter(func.upper(User.matricule) == matricule_norm)
+        .first()
+    )
+
+    if not user or user.role != UserRole.PARENT:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Matricule invalide pour un parent.",
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Ce compte parent est désactivé. Contactez l'administrateur.",
+        )
+
+    access_token = create_access_token(user_id=user.id, role=user.role)
+    return Token(access_token=access_token)
+
+
 @app.post("/auth/login", response_model=Token, tags=["auth"])
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -111,6 +156,13 @@ def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Identifiants incorrects.",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Seuls les rôles gestionnaire et admin (super admin côté frontend) peuvent utiliser ce mode.
+    if user.role == UserRole.PARENT:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Accès réservé aux administrateurs.",
         )
 
     access_token = create_access_token(user_id=user.id, role=user.role)

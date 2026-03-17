@@ -11,9 +11,11 @@ import logo from "@/assets/logo.png";
 
 const Login = () => {
   const [matricule, setMatricule] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"parent" | "admin">("parent");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login } = useAuth();
@@ -22,7 +24,9 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const result = await login(matricule, password);
+      const isAdmin = activeTab === "admin";
+      const identifiant = isAdmin ? adminEmail : matricule;
+      const result = await login(identifiant, isAdmin ? password : undefined, isAdmin ? "admin" : "parent");
       if (result.ok) {
         toast({ title: "Connexion réussie", description: result.message });
         // Laisser React mettre à jour le contexte (currentUser) avant la redirection,
@@ -106,62 +110,140 @@ const Login = () => {
 
           <div className="mb-8">
             <h2 className="text-3xl font-display font-bold text-foreground">Connexion</h2>
-            <p className="text-muted-foreground mt-2">Entrez votre matricule et mot de passe</p>
+            <p className="text-muted-foreground mt-2">Accédez à votre espace dédié</p>
+          </div>
+
+          {/* Onglets Parent / Administrateur */}
+          <div className="mb-6 bg-muted rounded-full p-1 flex">
+            <button
+              type="button"
+              onClick={() => setActiveTab("parent")}
+              className={`flex-1 py-2.5 px-3 text-sm font-medium rounded-full flex items-center justify-center gap-2 transition-all ${
+                activeTab === "parent"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-secondary/10 text-secondary text-xs font-semibold">
+                P
+              </span>
+              <span>Parent / Agent</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("admin")}
+              className={`flex-1 py-2.5 px-3 text-sm font-medium rounded-full flex items-center justify-center gap-2 transition-all ${
+                activeTab === "admin"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-secondary/10 text-secondary text-xs font-semibold">
+                A
+              </span>
+              <span>Administrateur</span>
+            </button>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="matricule" className="text-sm font-medium">N° Matricule ou E-mail</Label>
-              <Input
-                id="matricule"
-                type="text"
-                placeholder="Ex: PARENT001"
-                value={matricule}
-                onChange={(e) => setMatricule(e.target.value)}
-                required
-                className="h-12 bg-card border-border focus:ring-2 focus:ring-secondary/50"
-              />
-            </div>
+            {activeTab === "parent" ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="matricule" className="text-sm font-medium">
+                    N° Matricule
+                  </Label>
+                  <Input
+                    id="matricule"
+                    type="text"
+                    placeholder="Ex: PARENT001"
+                    value={matricule}
+                    onChange={(e) => setMatricule(e.target.value)}
+                    required
+                    className="h-12 bg-card border-border focus:ring-2 focus:ring-secondary/50"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Saisissez votre matricule pour accéder à votre espace.
+                  </p>
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">Mot de passe</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="h-12 bg-card border-border focus:ring-2 focus:ring-secondary/50 pr-12"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-12 bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold text-base shadow-lg shadow-secondary/25 transition-all hover:shadow-xl hover:shadow-secondary/30"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-secondary-foreground/30 border-t-secondary-foreground rounded-full animate-spin" />
+                      Vérification en cours...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <LogIn className="w-5 h-5" />
+                      Accéder à mon espace
+                    </div>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="admin-email" className="text-sm font-medium">
+                    Adresse email
+                  </Label>
+                  <Input
+                    id="admin-email"
+                    type="email"
+                    placeholder="Ex: youssouf.ali@css.dj"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    required
+                    className="h-12 bg-card border-border focus:ring-2 focus:ring-secondary/50"
+                  />
+                </div>
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-12 bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold text-base shadow-lg shadow-secondary/25 transition-all hover:shadow-xl hover:shadow-secondary/30"
-            >
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 border-2 border-secondary-foreground/30 border-t-secondary-foreground rounded-full animate-spin" />
-                  Connexion en cours...
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium">
+                    Mot de passe
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="h-12 bg-card border-border focus:ring-2 focus:ring-secondary/50 pr-12"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                 </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <LogIn className="w-5 h-5" />
-                  Se connecter
-                </div>
-              )}
-            </Button>
+
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-12 bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold text-base shadow-lg shadow-secondary/25 transition-all hover:shadow-xl hover:shadow-secondary/30"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-secondary-foreground/30 border-t-secondary-foreground rounded-full animate-spin" />
+                      Connexion en cours...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <LogIn className="w-5 h-5" />
+                      Se connecter
+                    </div>
+                  )}
+                </Button>
+              </>
+            )}
           </form>
 
           <div className="mt-8 text-center">
